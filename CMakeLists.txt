@@ -1,38 +1,40 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.8)
 
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
 set(PROJECT_VERSION 0.0.${PATCH_VERSION})
+set(NAME_PROJECT "ip_filter")
+set(LIB_NAME "version_lib")
 
-project(helloworld VERSION ${PROJECT_VERSION})
+project(${NAME_PROJECT} VERSION ${PROJECT_VERSION})
 
 option(WITH_BOOST_TEST "Whether to build with tests" ON)
 
 configure_file(version.h.in version.h)
 
-add_executable(helloworld_cli main.cpp)
-add_library(helloworld lib.cpp)
+add_executable(${NAME_PROJECT} main.cpp filter_ip.cpp)
+add_library(${LIB_NAME} lib.cpp)
 
-set_target_properties(helloworld_cli helloworld PROPERTIES
-    CXX_STANDARD 11
+set_target_properties(${NAME_PROJECT} ${LIB_NAME} PROPERTIES
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
 )
 
-target_include_directories(helloworld
+target_include_directories(${LIB_NAME}
     PRIVATE "${CMAKE_BINARY_DIR}"
 )
 
-target_link_libraries(helloworld_cli 
-    PRIVATE helloworld
+target_link_libraries(${NAME_PROJECT} 
+    PRIVATE ${LIB_NAME}
 )
 
-set(BOOST_ROOT "/usr/local/boost_1_79_0/boost")
+#set(BOOST_ROOT "/usr/local/boost_1_79_0/boost")
 
 if(WITH_BOOST_TEST)
     find_package(Boost COMPONENTS unit_test_framework REQUIRED)
     add_executable(test_version test_version.cpp)
 
     set_target_properties(test_version PROPERTIES
-        CXX_STANDARD 14
+        CXX_STANDARD 17
         CXX_STANDARD_REQUIRED ON
     )
 
@@ -43,15 +45,15 @@ if(WITH_BOOST_TEST)
 
     target_link_libraries(test_version
         ${Boost_LIBRARIES}
-        helloworld
+        ${LIB_NAME}
     )
 endif()
 
 if (MSVC)
-    target_compile_options(helloworld_cli PRIVATE
+    target_compile_options(${NAME_PROJECT} PRIVATE
         /W4
     )
-    target_compile_options(helloworld PRIVATE
+    target_compile_options(${LIB_NAME} PRIVATE
         /W4
     )
     if(WITH_BOOST_TEST)
@@ -60,10 +62,10 @@ if (MSVC)
         )
     endif()
 else ()
-    target_compile_options(helloworld_cli PRIVATE
+    target_compile_options(${NAME_PROJECT} PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
-    target_compile_options(helloworld PRIVATE
+    target_compile_options(${LIB_NAME} PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
     if(WITH_BOOST_TEST)
@@ -73,7 +75,7 @@ else ()
     endif()
 endif()
 
-install(TARGETS helloworld_cli RUNTIME DESTINATION bin)
+install(TARGETS ${NAME_PROJECT} RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
