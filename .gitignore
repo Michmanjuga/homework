@@ -1,5 +1,7 @@
 /.vscode/
 /CMakeFiles/
 /build/
+/release/**
+!/release/ip_filter
 /test/
 *.[oa]
