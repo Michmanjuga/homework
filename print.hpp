@@ -3,6 +3,7 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <map>
 
 namespace std
 {
@@ -18,19 +19,18 @@ namespace std
                 os << ", ";
             os << *it;
         }
-        return os << endl;
+        return os;
     }
 
-    template<>
-    ostream& operator<<(ostream& os, const vector<ip_addr>& data)
+    template<
+        typename Key,
+        typename Value,
+        typename Comp = std::less<Key>,
+        typename Alloc = std::allocator<std::pair<const Key, Value>>
+    > ostream& operator<<(ostream& os, const std::map<Key, Value, Comp, Alloc>& m)
     {
-        for(auto ip : data)
-        {
-            os  << static_cast<uint32_t>(ip.byte[0]) << '.' 
-                << static_cast<uint32_t>(ip.byte[1]) << '.' 
-                << static_cast<uint32_t>(ip.byte[2]) << '.' 
-                << static_cast<uint32_t>(ip.byte[3]) << endl;
-        }
+        for(const auto& [key, value] : m)
+            os << key << ' ' << value << endl;
         return os;
     }
 }

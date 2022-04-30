@@ -2,6 +2,6 @@
 /CMakeFiles/
 /build/
 /release/**
-!/release/ip_filter
+!/release/allocator
 /test/
 *.[oa]
