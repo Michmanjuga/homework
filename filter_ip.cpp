@@ -1,12 +1,5 @@
 #include "filter_ip.hpp"
 
-// ("",  '.') -> [""]
-// ("11", '.') -> ["11"]
-// ("..", '.') -> ["", "", ""]
-// ("11.", '.') -> ["11", ""]
-// (".11", '.') -> ["", "11"]
-// ("11.22", '.') -> ["11", "22"]
-
 bool operator>(ip_addr left, ip_addr right)
 {
     return 
@@ -20,18 +13,18 @@ bool operator>(ip_addr left, ip_addr right)
 }
 
 
-std::vector<std::string> split(const std::string &str, char d)
+std::vector<std::string> split(const std::string &str, char delim)
 {
     std::vector<std::string> r;
 
     std::string::size_type start = 0;
-    std::string::size_type stop = str.find_first_of(d);
+    std::string::size_type stop = str.find_first_of(delim);
     while(stop != std::string::npos)
     {
         r.push_back(str.substr(start, stop - start));
 
         start = stop + 1;
-        stop = str.find_first_of(d, start);
+        stop = str.find_first_of(delim, start);
     }
 
     r.push_back(str.substr(start));
@@ -48,14 +41,17 @@ ip_addr convert(std::vector<std::string> ip_vec)
     return ip;
 }
 
-std::vector<ip_addr> parse(std::istream& is)
+std::vector<ip_addr> parse(std::istream& input_stream)
 {
     std::vector<ip_addr> ip_pool;
-    for(std::string line; std::getline(is, line);)
+    const std::size_t some_big_enough_value = 10'000;
+    ip_pool.reserve(some_big_enough_value);
+    for(std::string line; std::getline(input_stream, line);)
     {
         auto v = split(line, '\t'); // separate
         ip_pool.push_back(convert(split(v.at(0), '.')));
     }
+    ip_pool.shrink_to_fit();
     return ip_pool;
 }
 
@@ -68,6 +64,7 @@ std::vector<ip_addr> filter(std::vector<ip_addr> ip_vec, uint8_t value)
         if(ip.byte[0] == value)
             result.push_back(ip);
     }
+    result.shrink_to_fit();
     return result;
 }
 
@@ -82,6 +79,7 @@ std::vector<ip_addr> filter(std::vector<ip_addr> ip_vec, uint8_t value1, uint8_t
         if(ip.byte[1] == value2)
             result.push_back(ip);
     }
+    result.shrink_to_fit();
     return result;
 }
 
@@ -95,5 +93,6 @@ std::vector<ip_addr> filter_any(std::vector<ip_addr> ip_vec, uint8_t value)
         if(ip.byte[0] == value || ip.byte[1] == value || ip.byte[2] == value || ip.byte[3] == value)
             result.push_back(ip);
     }
+    result.shrink_to_fit();
     return result;
 }

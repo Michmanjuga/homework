@@ -5,15 +5,13 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <filesystem>
 #include <algorithm>
 
-int main(int, char**)
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
     try
     {
-        std::ifstream test_file("../test/ip_filter.tsv");
-        auto ip_pool = parse(test_file);
+        auto ip_pool = parse(std::cin);
         
         std::sort(std::begin(ip_pool), std::end(ip_pool), std::greater<>());
 

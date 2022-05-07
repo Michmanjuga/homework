@@ -27,8 +27,6 @@ target_link_libraries(${NAME_PROJECT}
     PRIVATE ${LIB_NAME}
 )
 
-#set(BOOST_ROOT "/usr/local/boost_1_79_0/boost")
-
 if(WITH_BOOST_TEST)
     find_package(Boost COMPONENTS unit_test_framework REQUIRED)
     add_executable(test_version test_version.cpp)
