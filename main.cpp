@@ -1,24 +1,22 @@
-#include "lib.h"
-#include "filter_ip.hpp"
 #include "print.hpp"
 
 #include <iostream>
-#include <fstream>
 #include <vector>
 #include <algorithm>
+
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
     try
     {
-        auto ip_pool = parse(std::cin);
-        
-        std::sort(std::begin(ip_pool), std::end(ip_pool), std::greater<>());
+        ip_pool pool(std::cin);
+        pool.sort_greater();
 
-        std::cout << ip_pool;
-        std::cout << filter(ip_pool, 1);
-        std::cout << filter(ip_pool, 46, 70);
-        std::cout << filter_any(ip_pool, 46);
+        std::cout << pool.get();
+        std::cout << pool.filter(1);
+        std::cout << pool.filter(46, 70);
+        std::cout << pool.filter_any(46);
+
     }
     catch(const std::exception &e)
     {
