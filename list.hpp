@@ -1,7 +1,7 @@
 namespace custom {
 
 
-template<typename T, typename allocator = ::std::allocator<T>()>
+template<typename T, typename Alloc = ::std::allocator<T>()>
 class forward_list
 {
     struct Node {
