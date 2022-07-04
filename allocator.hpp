@@ -2,43 +2,67 @@
 #include <iostream>
 #include <typeinfo>
 
-#define UNUSED(value) ((void)(value))
-
 namespace custom
 {
 
-template <typename T, std::size_t number = 1ul>
-struct allocator
+template <typename T, size_t Number = 1ul>
+class allocator
 {
+public:
     using value_type = T;
     using pointer = T*;
     using reference = T&;
     using const_pointer = T const*;
     using const_reference = T const &;
-    using size_type = std::size_t;
+    using size_type = size_t;
 
     template <typename U>
     struct rebind { using other = allocator<U>; };
 
-    allocator() noexcept = default;
-    ~allocator() noexcept = default;
+    allocator() noexcept
+    {
+        _memory = ::malloc(Number * sizeof(value_type));
+        _reserved = Number;
+    }
+    ~allocator() noexcept
+    {
+        free(_memory);
+    }
     
     allocator(const allocator&) noexcept = default;
-    allocator& operator=(const allocator&) = default;
+    allocator& operator=(const allocator&) noexcept = default;
 
     template<typename U>
     allocator(const allocator<U>&) noexcept {}
 
-    pointer allocate(const size_type n)
+    pointer allocate(const size_type needed)
     {
-        std::cout << "allocate: [n = " << n << "]\n";
-        return reinterpret_cast<pointer>(malloc(n * sizeof(T)));
+        std::cout << "allocate with n = " << needed << std::endl;
+        Number = needed;
+        if (Number < (_allocated + needed)) // not enough memory exists
+        {
+            std::cout << "not enough memory, n = " << needed << ", _allocated = " << _allocated << std::endl;
+
+        }
+
+        std::cout << "enough memory" << std::endl;
+        pointer result = reinterpret_cast<pointer>(_memory + _allocated);
+        _allocated += needed;
+        return result;
     }
 
-    void deallocate(pointer p, size_type n)
+    void deallocate([[maybe_unused]] pointer p, [[maybe_unused]] size_type needed)
     {
-        std::cout << "deallocate: [n = " << n << "]\n";
-        free(p);
+        std::cout << "deallocate: [n = " << needed << "]\n";
+        // free(p);
+        if (_allocated > 0)
+        {
+            --_allocated;
+        }
+        else
+        {
+
+        }
     }
 
     template<typename U, typename ...Args>
@@ -49,11 +73,16 @@ struct allocator
     }
 
     template<typename U>
-    void destroy(U* p, size_type n)
+    void destroy(U* p, size_type needed)
     {
-        std::cout << "destroy: [U = " << typeid(decltype(p)).name() << "]\n";
+        std::cout << "destroy: [n = " << needed << "] of [U = " << typeid(decltype(p)).name() << "]\n";
         p->~U();
     }
+
+private:
+    void* _memory{ nullptr };
+    size_type _reserved { 0ul };
+    size_type _allocated{ 0ul };
 };
 
 } // namespace custom
